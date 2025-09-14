@@ -1,0 +1,10 @@
+# Dependencies
+/.venv
+# Python cache
+/.pytest_cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd 
+# Environment variables
+.env
