@@ -6,7 +6,6 @@ authors = [
     {name = "OriC28",email = "orianacolina.perea@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
 dependencies = [
     "requests>=2.32.5"
 ]
@@ -15,7 +14,7 @@ dependencies = [
 packages = [{include = "atmospy", from = "src"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4"
@@ -27,6 +26,7 @@ testpaths = [
     "tests",
     "integration",
 ]
+pythonpath = "src"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

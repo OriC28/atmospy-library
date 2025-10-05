@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from models import *
+from atmospy.models import *
 
 """ 
 Module for validating date strings in 'YYYY-MM-DD' format and ensuring they fall within a specified range.
@@ -38,11 +38,11 @@ def validate_datetime(dt: str) -> None | ValueError:
     if not validate_format(dt):
         raise ValueError("The date must be in the format YYYY-MM-DD.")
 
-    days_possibles = timedelta(days=14)
-    start_date = datetime.now()
-    final_date = start_date + days_possibles
+    today = datetime.now().date()
+    final_date = today + timedelta(days=14)
+    input_date = datetime.strptime(dt, "%Y-%m-%d").date()
 
-    if not start_date <= datetime.strptime(dt, "%Y-%m-%d") <= final_date:
+    if not (today <= input_date <= final_date):
         raise ValueError(
             "The date must be between today and the next 14 days.")
 

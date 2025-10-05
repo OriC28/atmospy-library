@@ -1,8 +1,8 @@
 import requests
 
-from functions import get_object_to, validate_datetime
-from models import WeatherData
-import exceptions
+from atmospy.functions import get_object_to, validate_datetime
+from atmospy.models import WeatherData
+from atmospy import exceptions
 
 """ Module: client
 --------------
@@ -53,20 +53,25 @@ class WeatherClient:
         if not params or len(params) == 0:
             raise exceptions.MissingParamsError()
 
-        # Integrating endpoint with the entered parameters
-        endpoint += "?" + \
-            "&".join([f"{k}={v}" for k, v in params.items() if v is not None])
-        # Creating the url for the request
-        url = f"{self.base_url}{endpoint.strip()}&key={self.api_key}"
+        url = f"{self.base_url}{endpoint}"
+
+        # Let requests handle parameter encoding
+        all_params = params.copy()
+        all_params['key'] = self.api_key
+
         try:
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                json_response = response.json()
-                # Creating an object from the JSON returned by the API
-                object_response = get_object_to(json_response)
-                return object_response
-        except:
-            raise exceptions.APIRequestError(status_code=response.status_code)
+            response = requests.get(url, params=all_params, timeout=10)
+            response.raise_for_status()  # Raises HTTPError for bad responses (4xx or 5xx)
+            json_response = response.json()
+            # Creating an object from the JSON returned by the API
+            object_response = get_object_to(json_response)
+            return object_response
+        except requests.exceptions.HTTPError as e:
+            raise exceptions.APIRequestError(
+                status_code=e.response.status_code, message=str(e))
+        except requests.exceptions.RequestException as e:
+            raise exceptions.APIRequestError(
+                status_code=500, message=f"Request failed: {e}")
 
     def get_current_weather(self, city_name: str, language: str = None) -> WeatherData:
         """
@@ -84,7 +89,7 @@ class WeatherClient:
             raise exceptions.MissingParamsError()
         return self._make_request('/current.json', params={'q': city_name, 'lang': language})
 
-    def get_forecast(self, city_name: str, days: int, dt: str = None):
+    def get_forecast(self, city_name: str, days: int, dt: str = None) -> WeatherData:
         if not city_name or len(city_name) == 0 or not days:
             raise exceptions.MissingParamsError()
 
@@ -95,3 +100,8 @@ class WeatherClient:
             validate_datetime(dt)
 
         return self._make_request('/forecast.json', params={'q': city_name, 'days': days, 'dt': dt})
+
+
+w = WeatherClient("cd1e3425856b476d834155516251409")
+result = w.get_forecast('Tokyo', days=5, dt="2025-10-10")
+print(result.forecast.forecastday[0])
