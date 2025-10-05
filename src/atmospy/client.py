@@ -100,8 +100,3 @@ class WeatherClient:
             validate_datetime(dt)
 
         return self._make_request('/forecast.json', params={'q': city_name, 'days': days, 'dt': dt})
-
-
-w = WeatherClient("cd1e3425856b476d834155516251409")
-result = w.get_forecast('Tokyo', days=5, dt="2025-10-10")
-print(result.forecast.forecastday[0])
